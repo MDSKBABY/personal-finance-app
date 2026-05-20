@@ -1,0 +1,26 @@
+.DS_Store
+
+# IDE / editor
+.idea/
+backend/.idea/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Backend
+backend/target/
+backend/.mvn/
+backend/src/main/resources/application-local.yml
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Logs
+*.log
+
+# Generated assets / agent scratch files
+hatch-runs/
