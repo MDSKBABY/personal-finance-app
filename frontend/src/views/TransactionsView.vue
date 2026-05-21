@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 
 import TransactionForm from '../components/TransactionForm.vue'
@@ -25,6 +25,36 @@ const filters = reactive<TransactionQuery>({
   keyword: '',
   startDate: '',
   endDate: '',
+})
+
+const totalPages = computed(() => Math.max(1, Math.ceil(total.value / size.value)))
+
+const pageNumbers = computed(() => {
+  const current = page.value
+  const pages = totalPages.value
+
+  if (pages <= 7) {
+    return Array.from({ length: pages }, (_, index) => index + 1)
+  }
+
+  const result: Array<number | string> = [1]
+  const start = Math.max(2, current - 1)
+  const end = Math.min(pages - 1, current + 1)
+
+  if (start > 2) {
+    result.push('...')
+  }
+
+  for (let pageNumber = start; pageNumber <= end; pageNumber += 1) {
+    result.push(pageNumber)
+  }
+
+  if (end < pages - 1) {
+    result.push('...')
+  }
+
+  result.push(pages)
+  return result
 })
 
 onMounted(() => {
@@ -153,7 +183,18 @@ function formatAmount(record: TransactionRecord) {
 
       <div class="pagination">
         <button class="ghost-button" :disabled="page <= 1" @click="loadRecords(page - 1)">上一页</button>
-        <span>第 {{ page }} 页 / 每页 {{ size }} 条</span>
+        <button
+          v-for="pageNumber in pageNumbers"
+          :key="pageNumber"
+          class="page-button"
+          :class="{ active: pageNumber === page }"
+          :disabled="pageNumber === '...' || pageNumber === page"
+          type="button"
+          @click="typeof pageNumber === 'number' && loadRecords(pageNumber)"
+        >
+          {{ pageNumber }}
+        </button>
+        <span>共 {{ totalPages }} 页 / 每页 {{ size }} 条</span>
         <button class="ghost-button" :disabled="page * size >= total" @click="loadRecords(page + 1)">
           下一页
         </button>
